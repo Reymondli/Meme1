@@ -210,7 +210,11 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     
     // MARK: Topbar - Cancel
     @IBAction func cancel(_ sender: Any) {
+        imagePickerView.image = nil
+        topTextField.text = "TOP"
+        bottomTextField.text = "BOTTOM"
         dismiss(animated: true, completion: nil)
+        
     }
     
 }
