@@ -31,25 +31,20 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        topTextField.delegate = self
-        bottomTextField.delegate = self
-        topTextField.defaultTextAttributes = memeTextAttributes
-        bottomTextField.defaultTextAttributes = memeTextAttributes
-        topTextField.textAlignment = .center
-        bottomTextField.textAlignment = .center
-        topTextField.text = "TOP"
-        bottomTextField.text = "BOTTOM"
-        
+        configure(textField: topTextField, text: "TOP")
+        configure(textField: bottomTextField, text: "BOTTOM")
+    }
+    
+    // set delegation, text, attribtues, etc ...
+    func configure(textField: UITextField, text: String){
+        textField.delegate = self
+        textField.defaultTextAttributes = memeTextAttributes
+        textField.textAlignment = .center
+        textField.text = text
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        
-        if self.imagePickerView.image == nil {
-            shareButton.isEnabled = false
-        } else {
-            shareButton.isEnabled = true
-        }
+        shareButton.isEnabled = !(self.imagePickerView.image == nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -57,13 +52,11 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         // Disabling the Camera Button
         cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
         subscribeToKeyboardNotifications()
-        subscribeToHideKeyboardNotifications()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         unsubscribeFromKeyboardNotifications()
-        unsubscribeFromHideKeyboardNotifications()
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -81,22 +74,16 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         return true
     }
     
-    
-    
     @IBAction func pickAnImageFromAlbum(_ sender: Any) {
-        
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.sourceType = .photoLibrary
-        present(imagePicker, animated: true, completion: nil)
-        
+        presentImagePickerWith(sourceType: .photoLibrary)
     }
+    
     // MARK: Image Picker Controller Methods
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imagePickerView.image = image
-            //imagePickerView.contentMode = .scaleAspectFit
+            imagePickerView.contentMode = .scaleAspectFit
         }
         dismiss(animated: true, completion: nil)
     }
@@ -104,28 +91,30 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
     }
-    //-------------------------------------------
+
     
     // MARK: Camera Methods
     @IBAction func pickAnImageFromCamera(_ sender: Any) {
-        
+        presentImagePickerWith(sourceType: .camera)
+    }
+    
+    func presentImagePickerWith(sourceType: UIImagePickerControllerSourceType){
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
-        imagePicker.sourceType = .camera
+        imagePicker.sourceType = sourceType
         present(imagePicker, animated: true, completion: nil)
-        
     }
     
     // ----------Keyboard Methods---------- //
     // MARK: Keyboard Adjustments - Show
     func subscribeToKeyboardNotifications() {
-        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
     }
     
     func unsubscribeFromKeyboardNotifications() {
-        
         NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
     }
     
     func keyboardWillShow(_ notification:Notification) {
@@ -135,27 +124,14 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
     
     // MARK: Keyboard Adjustments - Hide
-    func subscribeToHideKeyboardNotifications() {
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
-    }
-    
-    func unsubscribeFromHideKeyboardNotifications() {
-        
-        NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
-    }
-    
     func keyboardWillHide(_ notification:Notification) {
-        
         if bottomTextField.isFirstResponder{
             //view.frame.origin.y += getKeyboardHeight(notification)
             view.frame.origin.y = 0
         }
-        
     }
     
     func getKeyboardHeight(_ notification:Notification) -> CGFloat {
-        
         let userInfo = notification.userInfo
         let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue // of CGRect
         return keyboardSize.cgRectValue.height
@@ -214,7 +190,6 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         topTextField.text = "TOP"
         bottomTextField.text = "BOTTOM"
         dismiss(animated: true, completion: nil)
-        
     }
     
 }
