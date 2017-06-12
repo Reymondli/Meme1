@@ -9,7 +9,7 @@
 import UIKit
 import Foundation
 
-class MainViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
+class MainViewController: UIViewController {
     
     // MARK: Connection Initializations
     @IBOutlet weak var imagePickerView: UIImageView!
@@ -59,50 +59,13 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         unsubscribeFromKeyboardNotifications()
     }
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        if (topTextField.text == "TOP"){
-            topTextField.text = ""
-        }
-        else if (bottomTextField.text == "BOTTOM"){
-            bottomTextField.text = ""
-        }
-    }
-    
-    // Dismiss the keyboard after pressing "Enter"
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
     @IBAction func pickAnImageFromAlbum(_ sender: Any) {
         presentImagePickerWith(sourceType: .photoLibrary)
     }
-    
-    // MARK: Image Picker Controller Methods
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        
-        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            imagePickerView.image = image
-            imagePickerView.contentMode = .scaleAspectFit
-        }
-        dismiss(animated: true, completion: nil)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
-    }
 
-    
     // MARK: Camera Methods
     @IBAction func pickAnImageFromCamera(_ sender: Any) {
         presentImagePickerWith(sourceType: .camera)
-    }
-    
-    func presentImagePickerWith(sourceType: UIImagePickerControllerSourceType){
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.sourceType = sourceType
-        present(imagePicker, animated: true, completion: nil)
     }
     
     // ----------Keyboard Methods---------- //
@@ -192,6 +155,47 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         dismiss(animated: true, completion: nil)
     }
     
+}
+
+extension MainViewController: UIImagePickerControllerDelegate {
+    // MARK: Image Picker Controller Methods
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        
+        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            imagePickerView.image = image
+            imagePickerView.contentMode = .scaleAspectFit
+        }
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func presentImagePickerWith(sourceType: UIImagePickerControllerSourceType){
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = sourceType
+        present(imagePicker, animated: true, completion: nil)
+    }
+}
+
+extension MainViewController: UINavigationControllerDelegate {
+    
+}
+
+extension MainViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if (textField.text == "TOP")||(textField.text == "BOTTOM") {
+            textField.text = ""
+        }
+    }
+    
+    // Dismiss the keyboard after pressing "Enter"
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 }
 
 
